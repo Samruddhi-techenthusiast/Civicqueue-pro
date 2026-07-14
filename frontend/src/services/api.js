@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import axios from 'axios'
 import { API_BASE } from '../constants'
 import toast from 'react-hot-toast'
@@ -71,3 +72,20 @@ api.interceptors.response.use(
 )
 
 export default api
+=======
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: "http://localhost:5001/api",
+});
+
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+  return req;
+});
+
+export default API;
+>>>>>>> b39a1f7edfb1750ee70940e959fef7d0938f56e2
