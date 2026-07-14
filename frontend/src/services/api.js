@@ -1,91 +1,159 @@
-<<<<<<< HEAD
 import axios from 'axios'
 import { API_BASE } from '../constants'
 import toast from 'react-hot-toast'
 
-const api = axios.create({ baseURL: API_BASE, withCredentials: true, timeout: 15000 })
+const api = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+  timeout: 15000
+})
 
 // Attach access token
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('accessToken')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+
   return config
 })
+
 
 let isRefreshing = false
 let failedQueue = []
 
+
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => error ? prom.reject(error) : prom.resolve(token))
+  failedQueue.forEach(prom => {
+    error ? prom.reject(error) : prom.resolve(token)
+  })
+
   failedQueue = []
 }
 
-// Auto-refresh on 401
+
+// Auto refresh access token on 401
 api.interceptors.response.use(
-  res => res,
-  async err => {
-    const original = err.config
-    if (err.response?.status === 401 && !original._retry) {
+  response => response,
+
+  async error => {
+
+    const originalRequest = error.config
+
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+
       if (isRefreshing) {
+
         return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject })
+          failedQueue.push({
+            resolve,
+            reject
+          })
+
         }).then(token => {
-          original.headers.Authorization = `Bearer ${token}`
-          return api(original)
+
+          originalRequest.headers.Authorization =
+            `Bearer ${token}`
+
+          return api(originalRequest)
         })
       }
-      original._retry = true
+
+
+      originalRequest._retry = true
       isRefreshing = true
+
+
       try {
-        // The refresh token is no longer read from localStorage — it lives only in the
-        // httpOnly cookie the backend sets on login, which JavaScript can never read.
-        // `withCredentials: true` is what makes the browser attach that cookie here;
-        // it was missing on this specific call before (it used plain `axios`, not the
-        // `api` instance, so the cookie was never actually sent).
-        const { data } = await axios.post(`${API_BASE}/auth/refresh`, {}, { withCredentials: true })
+
+        const { data } = await axios.post(
+          `${API_BASE}/auth/refresh`,
+          {},
+          {
+            withCredentials: true
+          }
+        )
+
+
         const { accessToken } = data.data
-        localStorage.setItem('accessToken', accessToken)
-        processQueue(null, accessToken)
-        original.headers.Authorization = `Bearer ${accessToken}`
-        return api(original)
-      } catch (e) {
-        processQueue(e, null)
+
+
+        localStorage.setItem(
+          'accessToken',
+          accessToken
+        )
+
+
+        processQueue(
+          null,
+          accessToken
+        )
+
+
+        originalRequest.headers.Authorization =
+          `Bearer ${accessToken}`
+
+
+        return api(originalRequest)
+
+
+      } catch (refreshError) {
+
+
+        processQueue(
+          refreshError,
+          null
+        )
+
+
         localStorage.clear()
+
         window.location.href = '/login'
-        return Promise.reject(e)
+
+
+        return Promise.reject(refreshError)
+
+
       } finally {
+
         isRefreshing = false
+
       }
     }
-    // Don't show toast for network timeouts on background/polling calls
-    if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-      return Promise.reject(err) // silent timeout — backend may just be starting
+
+
+
+    if (
+      error.code === 'ECONNABORTED' ||
+      error.message?.includes('timeout')
+    ) {
+      return Promise.reject(error)
     }
-    // Don't show toast for network errors (backend not running)
-    if (!err.response) {
-      return Promise.reject(err) // silent network error
+
+
+    if (!error.response) {
+      return Promise.reject(error)
     }
-    const message = err.response?.data?.message || 'Something went wrong'
-    if (err.response?.status !== 401) toast.error(message)
-    return Promise.reject(err)
+
+
+    const message =
+      error.response?.data?.message ||
+      'Something went wrong'
+
+
+    if (error.response.status !== 401) {
+      toast.error(message)
+    }
+
+
+    return Promise.reject(error)
   }
 )
 
+
 export default api
-=======
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: "http://localhost:5001/api",
-});
-
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-  return req;
-});
-
-export default API;
->>>>>>> b39a1f7edfb1750ee70940e959fef7d0938f56e2

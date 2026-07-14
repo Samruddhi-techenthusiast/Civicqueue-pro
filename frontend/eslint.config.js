@@ -14,21 +14,15 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-<<<<<<< HEAD
-      globals: globals.browser,
-      parserOptions: { ecmaFeatures: { jsx: true } },
-=======
-      ecmaVersion: 2020,
+      ecmaVersion: 'latest',
       globals: globals.browser,
       parserOptions: {
-        ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
         sourceType: 'module',
       },
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
->>>>>>> b39a1f7edfb1750ee70940e959fef7d0938f56e2
     },
   },
 ])

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -115,4 +114,3 @@ Frontend will run on: http://localhost:5173
 CivicQueue/ │ ├── backend/ │ ├── server.js │ ├── src/ │ │ ├── models/ │ │ ├── routes/ │ │ ├── middleware/ │ │ └── controllers/ │ ├── frontend/ │ ├── src/ │ │ ├── pages/ │ │ ├── components/ │ │ └── services/ │ └── README.md
 
 Author: Samruddhi Patil
->>>>>>> b39a1f7edfb1750ee70940e959fef7d0938f56e2
